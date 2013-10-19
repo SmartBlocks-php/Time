@@ -1,0 +1,38 @@
+.event_popup {
+
+    padding: 10px;
+    background: white;
+    position: fixed;
+    top: -90px;
+    z-index: 1000;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+    color: black;
+
+    #form_content {
+      width: 175px;
+    }
+
+    .time_input {
+      text-align: center;
+      font-size: 1.5em;
+      padding: 2px;
+      width: 50px;
+      width: 86px;
+    }
+
+  &:before {
+    content: "";
+    display: block;
+    position: relative;
+    top: -19px;
+    left: ~"calc(50% - 10px)";
+    height: 20px;
+    width: 20px;
+    background: white;
+    box-shadow: -2px -2px 2px rgba(0,0,0,0.2);
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    z-index: 1000;
+  }
+}

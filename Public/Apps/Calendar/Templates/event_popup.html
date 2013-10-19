@@ -1,0 +1,42 @@
+<h4>Edit this event</h4>
+<form action="javascript:void(0);" class="pure-form pure-form-aligned">
+    <div class="pure-control-group">
+        <label for="form_content">Name</label>
+        <input type="text" id="form_content" placeholder="Enter a name" value="<%= planned_task.get("name") %>" class="name"/>
+    </div>
+    <!--<div class="pure-control-group">-->
+        <!--<label for="pt_activity_chooser">Associated task</label>-->
+        <!--<select id="pt_activity_chooser" class="activity">-->
+            <!--<option value="0">-->
+                <!--None-->
+            <!--</option>-->
+            <!--<% for (var k in activities.models) {%>-->
+            <!--<option <% if (planned_task.get('task') && planned_task.get('task').get('activity').id ==  activities.models[k].get('id')) {%>selected="true"<% } %> value="<%= activities.models[k].get('id') %>">-->
+                <!--<%= activities.models[k].get('name') %>-->
+            <!--</option>-->
+            <!--<% } %>-->
+        <!--</select>-->
+        <!--<select id="pt_task_chooser" class="task_input">-->
+
+        <!--</select>-->
+    <!--</div>-->
+
+    <div class="pure-control-group">
+        <label for="planned_task_start">Start</label>
+        <input min="0" max="23" type="number" id="planned_task_start" value="<%= planned_task.getStart().getHours() %>" class="start_hour time_input"/>:
+        <input min="0" max="59"  step="5" type="number" value="<%= planned_task.getStart().getMinutes() %>" class="start_minute time_input"/>
+    </div>
+    <div class="pure-control-group">
+        <label for="planned_task_end">End</label>
+        <input min="0" max="23" type="number" id="planned_task_end" value="<%= planned_task.getEnd().getHours() %>" class="end_hour time_input"/>:
+        <input min="0" max="59"  step="5" type="number" value="<%= planned_task.getEnd().getMinutes() %>" class="end_minute time_input"/>
+    </div>
+
+    <div class="pure-controls">
+        <a href="javascript:void(0);" class="save_button pure-button pure-button-primary">Save</a>
+        <% if (planned_task.get("id")) { %>
+        <a href="javascript:void(0);" class="delete_button pure-button">Delete</a>
+        <% } %>
+        <a href="javascript:void(0);" class="cancel_button pure-button">Cancel</a>
+    </div>
+</form>

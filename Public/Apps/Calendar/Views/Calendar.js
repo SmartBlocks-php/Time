@@ -3,8 +3,9 @@ define([
     'underscore',
     'backbone',
     'text!../Templates/calendar.html',
-    'ContextMenuView'
-], function ($, _, Backbone, calendar_template, ContextMenu) {
+    'ContextMenuView',
+    './EventPopup'
+], function ($, _, Backbone, calendar_template, ContextMenu, EventPopup) {
     var View = Backbone.View.extend({
         tagName: "div",
         className: "calendar_calendar",
@@ -76,57 +77,30 @@ define([
                     if (allDay) {
                         date.setHours(12);
                     }
-                    var end = new Date(date);
-
-                    end.setHours(end.getHours() + 1);
-                    copiedEventObject.end = end;
-                    copiedEventObject.allDay = false;
-                    copiedEventObject.editable = true;
-
-                    // render the event on the calendar
-                    // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-
-
-                    var event = new PlannedTask();
-                    var task = base.parent.tasks.get($(this).attr("id"));
-                    event.setStart(date);
-                    event.set("duration", 3600000);
-                    event.set("content", task.get("name"));
-                    event.set("task", task);
-                    event.save({}, {
-                        success: function () {
-                            copiedEventObject.id = event.get("id");
-                            copiedEventObject.color = "gray";
-                            copiedEventObject.className = "event_cal pt_event" + event.get('id');
-                            base.$el.find('.calendar_container').fullCalendar('renderEvent', copiedEventObject);
-                            base.events.add(event);
-                            base.parent.events.trigger("updated_event", event);
-                        }
-                    });
-
 
                 },
-                eventDrop: function (event, jsEvent, ui, view) {
-                    var event = base.events.get(event.id);
+                eventDrop: function (pevent, jsEvent, ui, view) {
+                    var event = SmartBlocks.Blocks.Time.Data.events.get(pevent.id);
                     if (event) {
-                        event.setStart(event.start);
+                        event.setStart(pevent.start);
+                        event.setEnd(pevent.end);
 
                         event.save();
 
                     }
 
                 },
-                eventResize: function (event) {
-                    var event = base.events.get(event.id);
+                eventResize: function (pevent) {
+                    var event = SmartBlocks.Blocks.Time.Data.events.get(pevent.id);
 
                     if (event) {
-                        event.setStart(event.start);
-                        event.set("duration", event.end.getTime() - event.start.getTime());
+                        event.setStart(pevent.start);
+                        event.setEnd(pevent.end);
 
 
                         event.save({}, {
                             success: function () {
-                                base.parent.events.trigger("updated_event");
+
                             }
                         });
 
@@ -161,7 +135,7 @@ define([
                         className: "event_cal pt_event" + event.get('id'),
                         color: "rgba(50,50,50,0.3)"
                     };
-                    base.$el.find('.calendar_container').fullCalendar('renderEvent', newEvent);
+                    base.$el.find('.calendar_container').fullCalendar('renderEvent', newEvent, true);
                     event.save({}, {
                         success: function () {
                             console.log(event);
@@ -169,10 +143,11 @@ define([
                         }
                     });
                 },
-                eventRender: function (event, element) {
+                eventRender: function (pevent, element) {
                     var elt = $(element);
-                    elt.addClass("event_evt_" + event.id);
-                    elt.attr("data-id", event.id);
+
+                    elt.addClass("event_evt_" + pevent.id);
+                    elt.attr("data-id", pevent.id);
                     elt.attr("oncontextmenu", "return false;");
                     elt.mouseup(function (e) {
                         var elt = $(this);
@@ -182,16 +157,14 @@ define([
                             context_menu.addButton("Edit", function () {
                                 $(".event_popup").remove();
                                 if (event) {
-                                    var popup = new PlannedTaskPopup(event);
-                                    popup.init(base.SmartBlocks, e, event);
+                                    var popup = new EventPopup(event);
+                                    popup.init(e, pevent);
 
                                     popup.events.on("deleted", function () {
-                                        base.$el.find('.calendar_container').$el.fullCalendar('removeEvents', event.id)
-                                        base.parent.events.trigger("updated_event");
+                                        base.$el.find('.calendar_container').$el.fullCalendar('removeEvents', pevent.id);
                                     });
                                     popup.events.on("saved", function (event) {
-                                        base.$el.find('.calendar_container').fullCalendar('updateEvent', event)
-                                        base.parent.events.trigger("updated_event");
+                                        base.$el.find('.calendar_container').fullCalendar('updateEvent', pevent);
                                     });
                                 }
                             });
@@ -227,6 +200,23 @@ define([
         registerEvents: function () {
             var base = this;
 
+            SmartBlocks.Shortcuts.add([
+                46
+            ], function () {
+                console.log("tried", base.selected_pt);
+                if (base.$el.height() > 0) {
+                    if (base.selected_pt) {
+                        var id = base.selected_pt.get('id');
+                        base.$el.fullCalendar('removeEvents', [id]);
+                        base.selected_pt.destroy({
+                            success: function () {
+
+                            }
+                        });
+                    }
+                }
+            }, "#calendar");
+
             SmartBlocks.Blocks.Time.Data.events.on("change", function (model) {
                 base.updateEvent(model);
                 if (base.selected_pt) {
@@ -239,6 +229,141 @@ define([
             SmartBlocks.Blocks.Time.Data.events.on("remove", function (model) {
                 base.$el.find('.calendar_container').fullCalendar('removeEvents', [model.get('id')]);
             });
+
+            var move_timer = 0;
+            SmartBlocks.Shortcuts.add([
+                37
+            ], function () {
+                if (base.$el.height() > 0) {
+
+                    if (base.selected_pt) {
+                        var date = base.selected_pt.getStart();
+                        date.setHours(date.getHours() - 24);
+                        var end = new Date(base.selected_pt.getEnd());
+                        end.setHours(end.getHours() - 24);
+                        base.selected_pt.setStart(date);
+                        base.selected_pt.setEnd(end);
+
+                        clearTimeout(move_timer);
+                        move_timer = setTimeout(function () {
+                            base.selected_pt.save();
+                        }, 1000);
+
+                    }
+                }
+            }, "#calendar");
+
+            SmartBlocks.Shortcuts.add([
+                39
+            ], function () {
+                if (base.$el.height() > 0) {
+                    if (base.selected_pt) {
+                        var date = base.selected_pt.getStart();
+                        date.setHours(date.getHours() + 24);
+
+                        var end = new Date(base.selected_pt.getEnd());
+                        end.setHours(end.getHours() + 24);
+                        base.selected_pt.setStart(date);
+                        base.selected_pt.setEnd(end);
+
+                        base.selected_pt.setStart(date);
+                        clearTimeout(move_timer);
+                        move_timer = setTimeout(function () {
+                            base.selected_pt.save();
+                        }, 1000);
+                    }
+                }
+            }, "#calendar");
+
+            SmartBlocks.Shortcuts.add([
+                38
+            ], function () {
+                if (base.$el.height() > 0) {
+                    if (base.selected_pt) {
+                        var date = base.selected_pt.getStart();
+                        date.setMinutes(date.getMinutes() - 30);
+                        var end = new Date(base.selected_pt.getEnd());
+                        end.setMinutes(date.getMinutes() - 30);
+                        base.selected_pt.setStart(date);
+                        base.selected_pt.setEnd(end);
+
+
+                        base.selected_pt.setStart(date);
+                        clearTimeout(move_timer);
+                        move_timer = setTimeout(function () {
+                            base.selected_pt.save();
+                        }, 1000);
+                    }
+                }
+            }, "#calendar");
+
+            SmartBlocks.Shortcuts.add([
+                40
+            ], function () {
+                if (base.$el.height() > 0) {
+                    if (base.selected_pt) {
+                        var date = base.selected_pt.getStart();
+                        date.setMinutes(date.getMinutes() + 30);
+
+                        var end = new Date(base.selected_pt.getEnd());
+                        end.setMinutes(date.getMinutes() + 30);
+                        base.selected_pt.setStart(date);
+                        base.selected_pt.setEnd(end);
+
+                        base.selected_pt.setStart(date);
+                        clearTimeout(move_timer);
+                        move_timer = setTimeout(function () {
+                            base.selected_pt.save();
+                        }, 1000);
+                    }
+                }
+            }, "#calendar");
+
+            //Duration shortcut
+            SmartBlocks.Shortcuts.add([
+                16, 40
+            ], function () {
+                if (base.$el.height() > 0) {
+                    if (base.selected_pt) {
+                        base.selected_pt.set("duration", base.selected_pt.get("duration") + 30 * 60 * 1000);
+                        clearTimeout(move_timer);
+                        move_timer = setTimeout(function () {
+                            base.selected_pt.save();
+                        }, 1000);
+                    }
+                }
+            }, "#calendar");
+
+            SmartBlocks.Shortcuts.add([
+                16, 38
+            ], function () {
+                if (base.$el.height() > 0) {
+                    if (base.selected_pt) {
+                        base.selected_pt.set("duration", base.selected_pt.get("duration") - 30 * 60 * 1000);
+                        clearTimeout(move_timer);
+                        move_timer = setTimeout(function () {
+                            base.selected_pt.save();
+                        }, 1000);
+                    }
+                }
+            }, "#calendar");
+
+
+            base.$el.delegate(".prev_button", "click", function () {
+                base.$el.find(".calendar_container").fullCalendar('prev');
+                base.update();
+            });
+
+            base.$el.delegate(".next_button", "click", function () {
+                base.$el.find(".calendar_container").fullCalendar('next');
+                base.update();
+            });
+
+            base.$el.delegate(".today_button", "click", function () {
+                base.$el.find(".calendar_container").fullCalendar('today');
+                base.update();
+            });
+
         },
         updateEvent: function (model) {
             var base = this;
@@ -255,7 +380,7 @@ define([
                 color: "gray",
                 className: "planned_task_cal pt_event" + model.get('id')
             };
-            base.$el.find('.calendar_container').fullCalendar('renderEvent', newEvent);
+            base.$el.find('.calendar_container').fullCalendar('renderEvent', newEvent, true);
         }
 
     });
