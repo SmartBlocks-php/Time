@@ -123,13 +123,13 @@ class EventsController extends \Controller
 
     public function destroy($data = array())
     {
-        $data = $this->getRequestData();
         $event = Event::find($data["id"]);
         if (is_object($event))
         {
             if ($event->getOwner() == \User::current_user())
             {
                 $event->delete();
+                $this->json_message("Successfully deleted event");
             }
             else
             {

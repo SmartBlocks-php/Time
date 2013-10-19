@@ -206,6 +206,7 @@ define([
                             }
                             context_menu.addButton("Delete", function () {
                                 if (event) {
+                                    SmartBlocks.Blocks.Time.Data.events.remove(event);
                                     event.destroy({
                                         success: function () {
                                             console.log("destroyed event");
@@ -234,6 +235,9 @@ define([
                     }
                     base.$el.find(".pt_event" + model.get('id')).addClass("selected_event");
                 }
+            });
+            SmartBlocks.Blocks.Time.Data.events.on("remove", function (model) {
+                base.$el.find('.calendar_container').fullCalendar('removeEvents', [model.get('id')]);
             });
         },
         updateEvent: function (model) {

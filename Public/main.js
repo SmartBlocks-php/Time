@@ -9,10 +9,6 @@ define([
         custom_context_menu_items: [],
         init: function () {
             var base = this;
-
-            base.addEventContextMenuItem("alert_stuff", function (event) {
-                alert(event.get("name"));
-            });
         },
         addEventContextMenuItem: function (name, callback) {
             var base = this;
