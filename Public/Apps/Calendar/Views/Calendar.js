@@ -12,8 +12,8 @@ define([
         },
         init: function () {
             var base = this;
-            base.events = SmartBlocks.Blocks.Calendar.Data.events;
-
+            base.events = SmartBlocks.Blocks.Time.Data.events;
+        console.log("time data", SmartBlocks.Blocks.Time.Data);
             base.render();
         },
         render: function () {
@@ -22,6 +22,7 @@ define([
             var template = _.template(calendar_template, {});
             base.$el.html(template);
             base.renderCalendar();
+            base.registerEvents();
         },
         renderCalendar : function () {
             var base = this;
@@ -31,14 +32,13 @@ define([
             end.setHours(11);
 
             base.events = [];
-            for (var k in base.events.models) {
-                var event = base.events.models[k];
+            for (var k in SmartBlocks.Blocks.Time.Data.events.models) {
+                var event = SmartBlocks.Blocks.Time.Data.events.models[k];
                 var start = event.getStart();
-                var end = new Date(start);
-                var duration = parseInt(event.get("duration"));
-                end.setTime(end.getTime() + duration);
+                var end = event.getEnd();
+
                 var event = {
-                    title: event.get("content") ? event.get("content") : "Untitled",
+                    title: event.get('name'),
                     start: start,
                     end: end,
                     allDay: false,
@@ -48,6 +48,7 @@ define([
                 };
                 base.events.push(event);
             }
+            console.log(base.events);
             base.$el.find('.calendar_container').html("");
             base.$el.find('.calendar_container').fullCalendar({
                 header: {
@@ -96,7 +97,7 @@ define([
                             copiedEventObject.id = event.get("id");
                             copiedEventObject.color = "gray";
                             copiedEventObject.className = "event_cal pt_event" + event.get('id');
-                            base.$el.fullCalendar('renderEvent', copiedEventObject);
+                            base.$el.find('.calendar_container').fullCalendar('renderEvent', copiedEventObject);
                             base.events.add(event);
                             base.parent.events.trigger("updated_event", event);
                         }
@@ -137,19 +138,22 @@ define([
                     base.$el.find(".selected_event").removeClass("selected_event");
                     elt.addClass("selected_event");
 
-                    base.selected_pt = SmartBlocks.Blocks.Calendar.Data.events.get(event.id);
+                    base.selected_pt = SmartBlocks.Blocks.Time.Data.events.get(event.id);
                 },
                 dayClick: function (date, allDay, jsEvent, view) { // Creation of events on click
 
                     var end = new Date(date);
                     end.setHours(date.getHours() + 1);
-                    var event = new SmartBlocks.Blocks.Calendar.Models.Event();
+                    var event = new SmartBlocks.Blocks.Time.Models.Event();
                     event.setStart(date);
-                    event.set("duration", 3600000);
-                    event.set("content", "New event");
-                    SmartBlocks.Blocks.Calendar.Data.events.add(event);
+                    event.setEnd(end);
+                    event.set("name", "New event");
+                    event.set("description", "");
+                    console.log(event);
+                    event.set("stuff", "machin");
+                    SmartBlocks.Blocks.Time.Data.events.add(event);
                     var newEvent = {
-                        title: event.get('content'),
+                        title: event.get('name'),
                         start: date,
                         id: "noid",
                         allDay: allDay,
@@ -157,8 +161,13 @@ define([
                         className: "event_cal pt_event" + event.get('id'),
                         color: "rgba(50,50,50,0.3)"
                     };
-                    base.$el.fullCalendar('renderEvent', newEvent);
-                    event.save();
+                    base.$el.find('.calendar_container').fullCalendar('renderEvent', newEvent);
+                    event.save({}, {
+                        success: function () {
+                            console.log(event);
+                            console.log(event.getStart(), event.getEnd());
+                        }
+                    });
                 },
                 eventRender: function (event, element) {
                     var elt = $(element);
@@ -166,18 +175,18 @@ define([
                     elt.attr("data-id", event.id);
                     elt.dblclick(function (e) {
                         var elt = $(this);
-                        var event = SmartBlocks.Blocks.Calendar.Data.events.get(elt.attr('data-id'));
+                        var event = SmartBlocks.Blocks.Time.Data.events.get(elt.attr('data-id'));
                         $(".event_popup").remove();
                         if (event) {
                             var popup = new PlannedTaskPopup(event);
                             popup.init(base.SmartBlocks, e, event);
 
                             popup.events.on("deleted", function () {
-                                base.$el.fullCalendar('removeEvents', event.id)
+                                base.$el.find('.calendar_container').$el.fullCalendar('removeEvents', event.id)
                                 base.parent.events.trigger("updated_event");
                             });
                             popup.events.on("saved", function (event) {
-                                base.$el.fullCalendar('updateEvent', event)
+                                base.$el.find('.calendar_container').fullCalendar('updateEvent', event)
                                 base.parent.events.trigger("updated_event");
                             });
                         }
@@ -190,7 +199,35 @@ define([
         },
         registerEvents: function () {
             var base = this;
+
+            SmartBlocks.Blocks.Time.Data.events.on("change", function (model) {
+                base.updateEvent(model);
+                if (base.selected_pt) {
+                    if (base.$el.find(".selected_event").length > 1) {
+                        base.$el.find(".selected_event").removeClass("selected_event");
+                    }
+                    base.$el.find(".pt_event" + model.get('id')).addClass("selected_event");
+                }
+            });
+        },
+        updateEvent: function (model) {
+            var base = this;
+            var base = this;
+            base.$el.find('.calendar_container').fullCalendar('removeEvents', [model.get('id')]);
+            base.$el.find('.calendar_container').fullCalendar('removeEvents', ["noid"]);
+
+            var newEvent = {
+                title: model.get('name'),
+                start: model.getStart(),
+                id: model.get("id"),
+                allDay: false,
+                end: model.getEnd(),
+                color: "gray",
+                className: "planned_task_cal pt_event" + model.get('id')
+            };
+            base.$el.find('.calendar_container').fullCalendar('renderEvent', newEvent);
         }
+
     });
 
     return View;

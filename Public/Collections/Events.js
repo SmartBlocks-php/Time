@@ -6,7 +6,7 @@ define([
 ], function ($, _, Backbone, Event) {
     var Collection = Backbone.Collection.extend({
         model: Event,
-        url: "/Calendar/Events"
+        url: "/Time/Events"
     });
 
     return Collection;

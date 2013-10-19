@@ -4,7 +4,7 @@
  * Time: 11:28
  * This is the model class called File
  */
-namespace Calendar;
+namespace Time;
 /**
  * @Entity @Table(name="calendar_events")
  */
@@ -40,10 +40,15 @@ class Event extends \Model
      */
     private $owner;
 
+    /**
+     * @Column(type="text")
+     */
+    private $data;
+
 
     public function __construct()
     {
-
+        $this->data = json_encode(array());
     }
 
     public function getId()
@@ -101,16 +106,38 @@ class Event extends \Model
         return $this->start;
     }
 
-
-    public function toArray($reach_subfiles = false)
+    public function getData()
     {
-        return array(
+        return json_decode($this->data, true);
+    }
+
+    public function setData($data)
+    {
+        $this->data = json_encode($data);
+    }
+
+
+    public function toArray()
+    {
+
+        $array = array(
             "id" => $this->id,
             "name" => $this->name,
             "description" => $this->description,
             "owner" => $this->getOwner() != null ? $this->getOwner()->toArray() : null,
-            "start" => $this->getStart()->format(\DateTime::ISO8601),
-            "stop" => $this->getStart()->format(\DateTime::ISO8601),
+            "start" => $this->getStart()->format('Y-m-d\TH:i:s.uO'),
+            "end" => $this->getEnd()->format('Y-m-d\TH:i:s.uO')
         );
+
+        $data = $this->getData();
+        if (is_array($data))
+        {
+            foreach ($data as $key => $value)
+            {
+                $array[$key] = $value;
+            }
+        }
+
+        return $array;
     }
 }

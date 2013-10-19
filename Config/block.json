@@ -1,15 +1,15 @@
 {
-    "name": "Calendar",
-    "token": "calendar",
+    "name": "Time",
+    "token": "time",
     "restricted_to":"user",
     "types": [
         {
             "model_name": "Event",
             "collection_name": "Events",
             "plural": "events",
-            "ws_origin": "/Calendar/Events",
-            "model_location": "Calendar/Models/Event",
-            "collection_location": "Calendar/Collections/Events"
+            "ws_origin": "/Time/Events",
+            "model_location": "Time/Models/Event",
+            "collection_location": "Time/Collections/Events"
         }
     ],
     "apps": [
@@ -19,7 +19,7 @@
             "description": "Your calendar",
             "link": "#calendar",
             "logo_url": "/images/icons/user.png",
-            "block_token": "calendar",
+            "block_token": "time",
             "entry_point": "launch_calendar",
             "routing": {
 
