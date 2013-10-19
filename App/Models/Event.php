@@ -6,7 +6,7 @@
  */
 namespace Time;
 /**
- * @Entity @Table(name="calendar_events")
+ * @Entity @Table(name="time_events")
  */
 class Event extends \Model
 {

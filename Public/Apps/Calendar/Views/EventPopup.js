@@ -111,12 +111,29 @@ define([
                 base.event.end = end_date;
                 base.planned_task.set("name", base.$el.find(".name").val());
 
+                var reminder_value = base.$el.find(".reminder").val();
+                if (reminder_value == 1) {
+                    base.planned_task.set("reminder", {
+                        time: 0
+                    });
+                } else if (reminder_value == 2) {
+                    base.planned_task.set("reminder", {
+                        time: 15
+                    });
+                } else if (reminder_value == 3) {
+                    base.planned_task.set("reminder", {
+                        time: 60
+                    });
+                }
+
                 base.event.title = base.planned_task.get("name");
+                console.log(base.planned_task);
                 if (base.planned_task.get("name") != "") {
                     base.$el.remove();
                     base.planned_task.save({}, {
                         success: function () {
                             base.events.trigger("saved", base.event);
+                            console.log(base.planned_task);
                         }
                     });
                 } else {

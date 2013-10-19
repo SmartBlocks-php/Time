@@ -84,6 +84,7 @@ define([
                     if (event) {
                         event.setStart(pevent.start);
                         event.setEnd(pevent.end);
+                        console.log(event.getStart());
 
                         event.save();
 

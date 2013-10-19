@@ -55,9 +55,11 @@ class EventsController extends \Controller
         $event->setDescription($data["description"]);
         unset($data["description"]);
         $start = \DateTime::createFromFormat('Y-m-d\TH:i:s.uO', $data["start"]);
+        $start->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         $event->setStart($start);
         unset($data["start"]);
         $stop = \DateTime::createFromFormat('Y-m-d\TH:i:s.uO', $data["end"]);
+        $stop->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         $event->setEnd($stop);
         unset($data["end"]);
         unset($data["owner"]);
