@@ -2,8 +2,9 @@ define([
     'jquery',
     'underscore',
     'backbone',
-    'text!../Templates/calendar.html'
-], function ($, _, Backbone, calendar_template) {
+    'text!../Templates/calendar.html',
+    'ContextMenuView'
+], function ($, _, Backbone, calendar_template, ContextMenu) {
     var View = Backbone.View.extend({
         tagName: "div",
         className: "calendar_calendar",
@@ -13,7 +14,7 @@ define([
         init: function () {
             var base = this;
             base.events = SmartBlocks.Blocks.Time.Data.events;
-        console.log("time data", SmartBlocks.Blocks.Time.Data);
+            console.log("time data", SmartBlocks.Blocks.Time.Data);
             base.render();
         },
         render: function () {
@@ -24,7 +25,7 @@ define([
             base.renderCalendar();
             base.registerEvents();
         },
-        renderCalendar : function () {
+        renderCalendar: function () {
             var base = this;
             var now = new Date();
             now.setHours(10);
@@ -150,7 +151,6 @@ define([
                     event.set("name", "New event");
                     event.set("description", "");
                     console.log(event);
-                    event.set("stuff", "machin");
                     SmartBlocks.Blocks.Time.Data.events.add(event);
                     var newEvent = {
                         title: event.get('name'),
@@ -173,23 +173,49 @@ define([
                     var elt = $(element);
                     elt.addClass("event_evt_" + event.id);
                     elt.attr("data-id", event.id);
-                    elt.dblclick(function (e) {
+                    elt.attr("oncontextmenu", "return false;");
+                    elt.mouseup(function (e) {
                         var elt = $(this);
                         var event = SmartBlocks.Blocks.Time.Data.events.get(elt.attr('data-id'));
-                        $(".event_popup").remove();
-                        if (event) {
-                            var popup = new PlannedTaskPopup(event);
-                            popup.init(base.SmartBlocks, e, event);
+                        if (e.which == 3) {
+                            var context_menu = new ContextMenu();
+                            context_menu.addButton("Edit", function () {
+                                $(".event_popup").remove();
+                                if (event) {
+                                    var popup = new PlannedTaskPopup(event);
+                                    popup.init(base.SmartBlocks, e, event);
 
-                            popup.events.on("deleted", function () {
-                                base.$el.find('.calendar_container').$el.fullCalendar('removeEvents', event.id)
-                                base.parent.events.trigger("updated_event");
+                                    popup.events.on("deleted", function () {
+                                        base.$el.find('.calendar_container').$el.fullCalendar('removeEvents', event.id)
+                                        base.parent.events.trigger("updated_event");
+                                    });
+                                    popup.events.on("saved", function (event) {
+                                        base.$el.find('.calendar_container').fullCalendar('updateEvent', event)
+                                        base.parent.events.trigger("updated_event");
+                                    });
+                                }
                             });
-                            popup.events.on("saved", function (event) {
-                                base.$el.find('.calendar_container').fullCalendar('updateEvent', event)
-                                base.parent.events.trigger("updated_event");
+
+                            for (var k in SmartBlocks.Blocks.Time.Main.custom_context_menu_items) {
+                                var item = SmartBlocks.Blocks.Time.Main.custom_context_menu_items[k];
+                                context_menu.addButton(item.name, function () {
+                                    if (event) {
+                                        item.callback(event);
+                                    }
+                                });
+                            }
+                            context_menu.addButton("Delete", function () {
+                                if (event) {
+                                    event.destroy({
+                                        success: function () {
+                                            console.log("destroyed event");
+                                        }
+                                    });
+                                }
                             });
+                            context_menu.show(e);
                         }
+
                     });
                 },
                 viewDisplay: function (view) {

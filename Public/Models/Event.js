@@ -4,8 +4,7 @@ define([
 ], function (_, Backbone) {
     var Model = Backbone.Model.extend({
         default: {
-            data : [],
-            stuff: "sdfsdf"
+
         },
         urlRoot: "/Time/Events",
         getStart: function () {
