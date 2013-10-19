@@ -1,0 +1,13 @@
+<option value="0">
+    None
+</option>
+<% for (var k in deadlines.models) { %>
+<optgroup label="<%= deadlines.models[k].get('name') %>">
+    <% var tasks = deadlines.models[k].getTasks() %>
+    <% for (var j in tasks.models) { %>
+    <option <% if (pt.get('task') && pt.get('task').get('id') ==  tasks.models[j].get('id')) {%>selected="true"<% } %> value="<%= tasks.models[j].get('id') %>">
+        <%= tasks.models[j].get('name') %>
+    </option>
+    <% } %>
+</optgroup>
+<% } %>
