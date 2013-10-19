@@ -1,0 +1,34 @@
+<h4>Edit this event</h4>
+<form action="javascript:void(0);" class="pure-form pure-form-aligned">
+    <div class="pure-control-group">
+        <label for="form_content">Name</label>
+        <input type="text" id="form_content" placeholder="Enter a name" value="<%= planned_task.get('name') %>" class="name"/>
+    </div>
+    <div class="pure-control-group">
+        <label for="form_reminder">Reminder</label>
+        <select class="reminder">
+            <option value="0">No reminder</option>
+            <option value="1" <% if (planned_task.get('reminder') && planned_task.get('reminder').time == 0) { %>selected="true"<% } %>>On time</option>
+            <option value="2" <% if (planned_task.get('reminder') && planned_task.get('reminder').time == 15) { %>selected="true"<% } %>>15 minutes</option>
+            <option value="3" <% if (planned_task.get('reminder') && planned_task.get('reminder').time == 60) { %>selected="true"<% } %>>1 hour</option>
+        </select>
+    </div>
+    <div class="pure-control-group">
+        <label for="planned_task_start">Start</label>
+        <input min="0" max="23" type="number" id="planned_task_start" value="<%= planned_task.getStart().getHours() %>" class="start_hour time_input"/>:
+        <input min="0" max="59"  step="5" type="number" value="<%= planned_task.getStart().getMinutes() %>" class="start_minute time_input"/>
+    </div>
+    <div class="pure-control-group">
+        <label for="planned_task_end">End</label>
+        <input min="0" max="23" type="number" id="planned_task_end" value="<%= planned_task.getEnd().getHours() %>" class="end_hour time_input"/>:
+        <input min="0" max="59"  step="5" type="number" value="<%= planned_task.getEnd().getMinutes() %>" class="end_minute time_input"/>
+    </div>
+
+    <div class="pure-controls">
+        <a href="javascript:void(0);" class="save_button pure-button pure-button-primary">Save</a>
+        <% if (planned_task.get("id")) { %>
+        <a href="javascript:void(0);" class="delete_button pure-button">Delete</a>
+        <% } %>
+        <a href="javascript:void(0);" class="cancel_button pure-button">Cancel</a>
+    </div>
+</form>
