@@ -4,7 +4,7 @@ define([
 ], function (_, Backbone) {
     var Model = Backbone.Model.extend({
         default: {
-
+            all_day: false
         },
         urlRoot: "/Time/Events",
         getStart: function () {

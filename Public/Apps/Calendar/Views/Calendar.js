@@ -43,10 +43,10 @@ define([
                     title: event.get('name'),
                     start: start,
                     end: end,
-                    allDay: false,
                     id: event.get("id"),
                     className: "event_cal pt_event" + event.get('id'),
-                    color: "gray"
+                    color: "gray",
+                    allDay: event.get('all_day') === true
                 };
                 base.events.push(event);
             }
@@ -63,7 +63,7 @@ define([
                 droppable: true,
                 events: base.events,
                 defaultView: "agendaWeek",
-                allDaySlot: false,
+                allDaySlot: true,
                 drop: function (date, allDay, jsEvent, ui) { // this function is called when something is dropped
 
                     // retrieve the dropped element's stored Event Object
@@ -84,6 +84,7 @@ define([
                     if (event) {
                         event.setStart(pevent.start);
                         event.setEnd(pevent.end);
+                        event.set("all_day",pevent.allDay);
                         console.log(event.getStart());
 
                         event.save();
@@ -379,7 +380,8 @@ define([
                 allDay: false,
                 end: model.getEnd(),
                 color: "gray",
-                className: "planned_task_cal pt_event" + model.get('id')
+                className: "planned_task_cal pt_event" + model.get('id'),
+                allDay: model.get('all_day') === true
             };
             base.$el.find('.calendar_container').fullCalendar('renderEvent', newEvent, true);
         }
