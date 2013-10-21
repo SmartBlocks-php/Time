@@ -2,10 +2,11 @@ define([
     'jquery',
     'underscore',
     'backbone',
-    './Apps/Calendar/Views/Calendar'
-], function ($, _, Backbone, CalendarView) {
+    './Apps/Calendar/Views/Calendar',
+    'moment'
+], function ($, _, Backbone, CalendarView, moment) {
 
-
+    console.log("MOMENT", moment);
     function checkReminders() {
         var now = new Date();
         var events = SmartBlocks.Blocks.Time.Data.events;
@@ -51,6 +52,8 @@ define([
             setInterval(function () {
                 checkReminders();
             }, 1000);
+
+            SmartBlocks.Blocks.Time.Main.moment = moment;
         },
         addEventContextMenuItem: function (name, callback) {
             var base = this;

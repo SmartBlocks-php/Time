@@ -4,7 +4,9 @@ define([
     'backbone',
     'text!../Templates/calendar.html',
     'ContextMenuView',
-    './EventPopup'
+    './EventPopup',
+    'jqueryui',
+    'fullCalendar'
 ], function ($, _, Backbone, calendar_template, ContextMenu, EventPopup) {
     var View = Backbone.View.extend({
         tagName: "div",
