@@ -28,8 +28,6 @@ define([
 
             var template = _.template(PlannedTaskPopupTemplate, {
                 planned_task: base.planned_task,
-                activities: SmartBlocks.Blocks.Organization.Data.activities,
-                tasks: SmartBlocks.Blocks.Organization.Data.tasks
             });
 
 
@@ -40,16 +38,16 @@ define([
             base.updatePosition();
 
             var value = base.$el.find('.activity').val();
-            var activity = SmartBlocks.Blocks.Organization.Data.activities.get(value);
-            if (activity) {
-                var template = _.template(task_chooser_tpl, {
-                    deadlines: activity.getDeadlines(),
-                    pt: base.planned_task
-                });
-                base.$el.find('.task_input').html(template);
-            } else {
-                base.$el.find('.task_input').html('<option value="0">None</option>');
-            }
+//            var activity = SmartBlocks.Blocks.Organization.Data.activities.get(value);
+//            if (activity) {
+//                var template = _.template(task_chooser_tpl, {
+//                    deadlines: activity.getDeadlines(),
+//                    pt: base.planned_task
+//                });
+//                base.$el.find('.task_input').html(template);
+//            } else {
+//                base.$el.find('.task_input').html('<option value="0">None</option>');
+//            }
         },
         scroll: function (e) {
             e.stopPropagation();
@@ -81,16 +79,16 @@ define([
 
             base.$el.delegate('.activity', 'change', function () {
                 var value = $(this).val();
-                var activity = SmartBlocks.Blocks.Organization.Data.activities.get(value);
-                if (activity) {
-                    var template = _.template(task_chooser_tpl, {
-                        deadlines: activity.getDeadlines(),
-                        pt: base.planned_task
-                    });
-                    base.$el.find('.task_input').html(template);
-                } else {
-                    base.$el.find('.task_input').html('<option value="0">None</option>');
-                }
+//                var activity = SmartBlocks.Blocks.Organization.Data.activities.get(value);
+//                if (activity) {
+//                    var template = _.template(task_chooser_tpl, {
+//                        deadlines: activity.getDeadlines(),
+//                        pt: base.planned_task
+//                    });
+//                    base.$el.find('.task_input').html(template);
+//                } else {
+//                    base.$el.find('.task_input').html('<option value="0">None</option>');
+//                }
             });
 
             base.$el.delegate(".save_button", "click", function () {
