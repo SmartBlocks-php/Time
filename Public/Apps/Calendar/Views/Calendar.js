@@ -60,7 +60,9 @@ define([
                     center: '',
                     right: ''
                 },
-                height: 650,
+                height: base.$el.find('.calendar_container').height(),
+                width: base.$el.find('.calendar_container').width(),
+                aspectRatio : base.$el.find('.calendar_container').height() / base.$el.find('.calendar_container').width(),
                 editable: true,
                 droppable: true,
                 events: base.events,
@@ -203,6 +205,10 @@ define([
         },
         registerEvents: function () {
             var base = this;
+
+            $(window).resize(function () {
+                base.renderCalendar();
+            });
 
             SmartBlocks.Shortcuts.add([
                 46

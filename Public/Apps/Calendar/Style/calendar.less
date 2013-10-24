@@ -1,5 +1,5 @@
 .calendar_calendar {
-
+  height: 100%;
   .buttons {
     margin-bottom: 5px;
 
@@ -18,12 +18,24 @@
   }
 
   .planning_container {
-    width: 1000px;
+//    width: 1000px;
+    width: ~"calc(100% - 20px)";
+    height: ~"calc(100% - 70px)";
     margin: auto;
-    margin-top: 50px;
     padding: 10px;
     background: rgba(255,255,255,0.3);
-    box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+
+    > .pure-g {
+      height: 100%;
+      > .pure-u-1 {
+        height: 100%;
+      }
+    }
+  }
+
+  .calendar_container {
+    height: ~"calc(100% - 40px)";
+    width: ~"calc(100%)";
   }
 
   .activity_tree_container {
