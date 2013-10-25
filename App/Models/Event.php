@@ -10,6 +10,8 @@ namespace Time;
  */
 class Event extends \Model
 {
+    public static $_elastic = true;
+
     /**
      * @Id @GeneratedValue(strategy="AUTO") @Column(type="integer")
      */
@@ -125,8 +127,8 @@ class Event extends \Model
             "name" => $this->name,
             "description" => $this->description,
             "owner" => $this->getOwner() != null ? $this->getOwner()->toArray() : null,
-            "start" => $this->getStart()->format('Y-m-d\TH:i:s.uO'),
-            "end" => $this->getEnd()->format('Y-m-d\TH:i:s.uO')
+            "start" => $this->getStart() != null ? $this->getStart()->format('Y-m-d\TH:i:s.uO'): null,
+            "end" => $this->getEnd() != null ? $this->getEnd()->format('Y-m-d\TH:i:s.uO') : null
         );
 
         $data = $this->getData();

@@ -18,21 +18,24 @@ class EventsController extends \Controller
 
     public function index()
     {
-        $em = \Model::getEntityManager();
-        $qb = $em->createQueryBuilder();
-
-        $qb->select('e')->from('\Time\Event', 'e')->where('e.owner = :user')
-            ->setParameter('user', \User::current_user());
-
-        $results = $qb->getQuery()->getResult();
 
         $response = array();
+
+
+        $results = Event::all(array(
+            "owner" => \User::current_user()
+        ));
         foreach ($results as $result)
         {
             $response[] = $result->toArray();
         }
-
         $this->return_json($response);
+    }
+
+    public function show($params = array())
+    {
+        $event = Event::find($params["id"]);
+        $this->return_json($event->toArray());
     }
 
     private function createOrUpdate($data)
@@ -126,6 +129,7 @@ class EventsController extends \Controller
     public function destroy($data = array())
     {
         $event = Event::find($data["id"]);
+
         if (is_object($event))
         {
             if ($event->getOwner() == \User::current_user())
