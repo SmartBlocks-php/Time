@@ -12,7 +12,7 @@ class EventsController extends \Controller
 {
     public function before_filter()
     {
-        \User::restrict();
+       \User::restrict();
     }
 
 
@@ -49,7 +49,6 @@ class EventsController extends \Controller
         {
             $event = new Event();
         }
-
         $event->setOwner(\User::current_user());
 
         $event->setName($data["name"]);

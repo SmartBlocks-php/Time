@@ -10,7 +10,7 @@ namespace Time;
  */
 class Event extends \Model
 {
-    public static $_elastic = true;
+//    public static $_elastic = true;
 
     /**
      * @Id @GeneratedValue(strategy="AUTO") @Column(type="integer")
