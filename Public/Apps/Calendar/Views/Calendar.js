@@ -200,15 +200,19 @@ define([
                 },
                 viewDisplay: function (view) {
 
+                },
+                windowResize: function (view) {
+                    base.renderCalendar();
                 }
             });
         },
         registerEvents: function () {
             var base = this;
 
-            $(window).resize(function () {
-                base.renderCalendar();
-            });
+//            $(window).resize(function () {
+//
+//                base.renderCalendar();
+//            });
 
             SmartBlocks.Shortcuts.add([
                 46

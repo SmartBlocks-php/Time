@@ -19,28 +19,28 @@ define([
                 var remind_end = new Date(event.getStart());
                 if (now > remind_start && now < remind_end && !reminder.seen) {
 
-                        SmartBlocks.Blocks.Notifications.Main.notify("Reminder",
-                            event.get('name') + " starts in " + Math.round((event.getStart().getTime() - now.getTime()) / 60000) + " minutes",
-                            "event_reminder_" + event.get('id'),
-                            {
-                                ok: function () {
-                                    event.set("reminder", undefined);
-                                    event.save();
-                                },
-                                ignore: function () {
-                                    event.set("reminder", undefined);
-                                    event.save();
-                                },
-                                remind_me: function () {
-                                    var minutes_to_start = Math.round((event.getStart().getTime() - now.getTime()) / 60000) - 5;
-                                    if (minutes_to_start > 0) {
-                                        reminder.time = minutes_to_start;
-                                        reminder.seen = false;
-                                    }
-                                    event.save();
+                    SmartBlocks.Blocks.Notifications.Main.notify("Reminder",
+                        event.get('name') + " starts in " + Math.round((event.getStart().getTime() - now.getTime()) / 60000) + " minutes",
+                        "event_reminder_" + event.get('id'),
+                        {
+                            ok: function () {
+                                event.set("reminder", undefined);
+                                event.save();
+                            },
+                            ignore: function () {
+                                event.set("reminder", undefined);
+                                event.save();
+                            },
+                            remind_me: function () {
+                                var minutes_to_start = Math.round((event.getStart().getTime() - now.getTime()) / 60000) - 5;
+                                if (minutes_to_start > 0) {
+                                    reminder.time = minutes_to_start;
+                                    reminder.seen = false;
                                 }
-                            });
-                        reminder.seen = true;
+                                event.save();
+                            }
+                        });
+                    reminder.seen = true;
 
 
                 }
@@ -53,10 +53,11 @@ define([
         notified: [],
         init: function () {
             var base = this;
-
-            setInterval(function () {
-                checkReminders();
-            }, 1000);
+            if (SmartBlocks.current_user.get('connected')) {
+                setInterval(function () {
+                    checkReminders();
+                }, 1000);
+            }
 
             SmartBlocks.Blocks.Time.Main.moment = moment;
         },
