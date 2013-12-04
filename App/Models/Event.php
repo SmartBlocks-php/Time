@@ -5,6 +5,8 @@
  * This is the model class called File
  */
 namespace Time;
+use ReflectionClass;
+
 /**
  * @Entity @Table(name="time_events")
  */
@@ -141,5 +143,27 @@ class Event extends \Model
         }
 
         return $array;
+    }
+
+    function save() {
+        parent::save();
+        \NodeDiplomat::sendMessage($this->getOwner()->getSessionId(), array(
+                "block" => "Time",
+                "action" => "saved_event",
+                "event" => $this->toArray()
+            )
+        );
+    }
+
+    function delete() {
+
+        \NodeDiplomat::sendMessage($this->getOwner()->getSessionId(), array(
+                "block" => "Time",
+                "action" => "deleted_event",
+                "event" => $this->toArray()
+            )
+        );
+
+        parent::delete();
     }
 }

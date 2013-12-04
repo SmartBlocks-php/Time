@@ -59,6 +59,24 @@ define([
                 }, 1000);
             }
 
+
+            SmartBlocks.events.on("ws_notification", function (message) {
+                if (message.block == "Time") {
+                    if (message.action == "saved_event") {
+                        var event = new SmartBlocks.Blocks.Time.Models.Event(message.event);
+                        event.fetch({}, {
+                            success: function () {
+                                SmartBlocks.Blocks.Time.Data.events.add(event, {merge: true});
+                            }
+                        });
+
+                    }
+                    if (message.action == "deleted_event") {
+                        SmartBlocks.Blocks.Time.Data.events.remove(message.event.id);
+                    }
+                }
+            });
+
             SmartBlocks.Blocks.Time.Main.moment = moment;
         },
         addEventContextMenuItem: function (name, callback) {
